@@ -1,0 +1,13 @@
+[package]
+name = "piikkio-aplns"
+version = "1.2.0"
+authors = ["Juho Artturi Hemminki"]
+edition = "2021"
+
+[dependencies]
+libc = "0.2"
+
+[[bin]]
+name = "v-axion-engine"
+path = "driver-v-axion/main.rs"
+
