@@ -1,80 +1,70 @@
-Subtitle: Deterministic Phase Inversion and Entropy Stabilization in High-Frequency Brillouin Scattering Environments
-Version: 1.0.4-2026
-Status: Technical Specification
+# PIIKKIO APLNS: V-Axion Photonic Control Architecture
 
-    EXECUTIVE SUMMARY
+**PIIKKIO APLNS** (Adaptive Photonic Lattice Network System) on Hemminki-trilogian ylin ohjaustaso. Se toteuttaa alla olevan teknisen spesifikaation mukaisen deterministisen fotonisen hallinnan, joka mahdollistaa Terabitti-luokan tiedonsiirron Landauerin rajalla.
 
+---
+
+## 📄 TECHNICAL WHITE PAPER: V-AXION
+
+**Subtitle:** Deterministic Phase Inversion and Entropy Stabilization in High-Frequency Brillouin Scattering Environments  
+**Version:** 1.0.4-2026  
+**Status:** Technical Specification  
+**Author:** Juho Artturi Hemminki  
+
+### EXECUTIVE SUMMARY
 The V-Axion Photonic Control Architecture represents a paradigm shift in Software-Defined Optics (SDO). By synthesizing bare-metal Rust-based drivers with real-time thermodynamic feedback loops, this system achieves a stable, coherent control plane for Photonic Integrated Circuits (PIC). The architecture addresses the critical "Lattice Drift" problem in high-frequency optical computing by utilizing irrational phase scaling - specifically the Golden Ratio (phi) - to prevent harmonic resonance. Operating at the theoretical Landauer limit of energy efficiency, V-Axion enables Terabit-scale data processing with unprecedented thermal stability.
 
-    ARCHITECTURAL OVERVIEW
-
+### ARCHITECTURAL OVERVIEW
 The system is partitioned into three functional domains:
+1. **The Physical Layer (PIC):** Utilizing Mach-Zehnder Interferometers (MZI) for signal modulation within the UV-spectrum.
+2. **The Control Plane (VAxionEngine):** A low-latency Rust environment executing deterministic fixed-point arithmetic to command the hardware.
+3. **The Analytic Layer:** High-level modeling of Brillouin frequency shifts and thermodynamic efficiency to set the system's operational setpoints.
 
-    The Physical Layer (PIC): Utilizing Mach-Zehnder Interferometers (MZI) for signal modulation within the UV-spectrum.
-    The Control Plane (VAxionEngine): A low-latency Rust environment executing deterministic fixed-point arithmetic to command the hardware.
-    The Analytic Layer: High-level modeling of Brillouin frequency shifts and thermodynamic efficiency to set the system's operational setpoints.
-    MATHEMATICAL FOUNDATIONS
+### MATHEMATICAL FOUNDATIONS
 
-1. The Brillouin Frequency Shift (Delta-nu_B)
+#### 1. The Brillouin Frequency Shift (Delta-nu_B)
 In the V-Axion environment, signal modulation is derived from the interaction between photons and acoustic phonons. The frequency shift is governed by the equation:
-Delta-nu_B = (2 * n * v_s * nu / c) * sin(theta / 2)
-Where:
 
-    n: Refractive index of the medium (set to 2.2 for high-density PIC).
-    v_s: Velocity of sound in the material (5000 meters per second).
-    nu: Optical carrier frequency (1.407 Petahertz / UV-spectrum).
-    c: Speed of light in vacuum (approx. 299,792,458 meters per second).
-    theta: Scattering angle (pi / 2 or 90 degrees).
+`Delta-nu_B = (2 * n * v_s * nu / c) * sin(theta / 2)`
 
-Calculation result: This yields an operational shift of approximately 103.26 GHz, providing the wide bandwidth necessary for Terabit processing.
+*   **n:** Refractive index of the medium (2.2)
+*   **v_s:** Velocity of sound in the material (5000 m/s)
+*   **nu:** Optical carrier frequency (1.407 Petahertz / UV-spectrum)
+*   **c:** Speed of light in vacuum
+*   **theta:** Scattering angle (pi / 2)
 
-2. Irrational Phase Scaling (The phi Protocol)
-To prevent the formation of standing waves and parasitic resonances within the optical lattice, the system scales all correction factors by the Golden Ratio (phi).
-phi = (1 + square_root(5)) / 2
-Numerical value: approx 1.61803398875
-The Phase Inversion (Phi_inv) is calculated as:
-Phi_inv(t) = -1.0 * sine(Amplitude(t) * phi)
-By utilizing an irrational scalar, the control loop ensures that the correction frequency never coincides with the integer harmonics of the physical lattice drift, achieving what is termed "Chaotic Stability."
+*Calculation result: Operational shift of approximately 103.26 GHz.*
 
-3. Thermodynamic Efficiency and the Landauer Limit
-V-Axion operates near the fundamental lower bound of energy consumption required for information processing. The Landauer Limit (E_min) at a given temperature (T) is:
-E_min = k_B * T * natural_log(2)
-Where:
+#### 2. Irrational Phase Scaling (The phi Protocol)
+To prevent standing waves, the system scales all correction factors by the Golden Ratio (phi):  
+`phi = (1 + sqrt(5)) / 2 ≈ 1.61803398875`
 
-    k_B is the Boltzmann constant (1.380649e-23 Joules per Kelvin).
-    T is the absolute temperature (300 Kelvin).
+`Phi_inv(t) = -1.0 * sine(Amplitude(t) * phi)`  
+By utilizing an irrational scalar, the control loop ensures "Chaotic Stability" without integer harmonics.
 
-The system's operational efficiency (E_sigma) for a data flux (Delta_i) is defined as:
-E_sigma = (E_min * Delta_i) / (xi_h * eta_rec)
-Where:
+#### 3. Thermodynamic Efficiency and the Landauer Limit
+`E_min = k_B * T * ln(2)`  
+`E_sigma = (E_min * Delta_i) / (xi_h * eta_rec)`
 
-    Delta_i: Information density (10 to the power of 12 bits per second / 1 Tbit/s).
-    xi_h: Target coherence index (Sigma_H_Target = 0.9999).
-    eta_rec: Recovery efficiency of the optical receiver (0.999).
+*Result: Energy cost of ~2.93 nanojoules per Terabit.*
 
-The resulting energy cost of approximately 2.93 nanojoules per Terabit enables high-speed computing without the traditional "thermal wall" encountered in CMOS electronics.
+### SYSTEM IMPLEMENTATION STRATEGY
 
-    SYSTEM IMPLEMENTATION STRATEGY
+#### 1. Deterministic Execution (The Rust Driver)
+*   **Fixed-Point Scaling:** Q16.16 math for bit-identical results.
+*   **Volatile Memory Mapping:** Direct register access via volatile pointers.
+*   **Memory Barriers:** `SeqCst` fences for strict sequential consistency.
 
-1. Deterministic Execution (The Rust Driver)
-The software layer is implemented in "no_std" Rust to ensure zero-jitter execution.
+#### 2. Direct DMA Linkage
+*   **Zero-Copy Architecture:** Direct mapping to PIC physical address space.
+*   **Status Monitoring:** Hardware watchdog; triggers **Safe State (0xDEAD)** if lattice drift exceeds correction capacity.
 
-    Fixed-Point Scaling: Floating-point operations are replaced with Q16.16 fixed-point math to guarantee bit-identical results across all execution cycles.
-    Volatile Memory Mapping: Registers are accessed via volatile pointers to prevent compiler reordering, ensuring that the Phase Correction arrives at the MZI at the exact nanosecond required.
-    Memory Barriers: Compiler and hardware fences (SeqCst) are utilized to maintain strict sequential consistency between the entropy sampling and the DMA transfer.
+### LATTICE DRIFT AND ENTROPY STABILIZATION
+The V-Axion Engine monitors the Hurst Exponent (H) of the phase noise. The `process_entropy_drift` function applies phi-scaled correction to the MZI Modulator, effectively "freezing" the lattice in a coherent state (SIGMA_H_TARGET = 0.9999).
 
-2. Direct DMA Linkage
-To achieve the 1 Tbit/s throughput, the system bypasses standard kernel interrupts.
+### CONCLUSION
+The V-Axion architecture represents the successful fusion of high-frequency optical physics and low-level software engineering. By respecting the Landauer limit and utilizing the unique mathematical properties of phi, the system achieves a level of stability and efficiency that surpasses traditional electronic and first-generation photonic controllers.
 
-    Zero-Copy Architecture: Data frames are mapped directly to the physical address space of the PIC.
-    Status Monitoring: A hardware-level watchdog reloads on every successful frame transfer. If the lattice drift exceeds the correction capacity (timeout > 1,000,000 cycles), the system triggers a Safe State (0xDEAD) to prevent optical damage.
-
-    LATTICE DRIFT AND ENTROPY STABILIZATION
-
-Optical lattices are subject to "Entropy Drift" caused by thermal fluctuations and mechanical stress. The V-Axion Engine monitors this drift by sampling the phase variance of the Brillouin return signal.
-The goal is to maintain the Hurst Exponent (H) of the phase noise as close to the SIGMA_H_TARGET (0.9999) as possible. If the sampled entropy exceeds the threshold, the process_entropy_drift function applies the phi-scaled sinus correction to the MZI Modulator, effectively "freezing" the lattice in a coherent state.
-
-    CONCLUSION
-
-The V-Axion architecture represents the successful fusion of high-frequency optical physics and low-level software engineering. By respecting the Landauer limit and utilizing the unique mathematical properties of phi, the system achieves a level of stability and efficiency that surpasses traditional electronic and first-generation photonic controllers. This white paper serves as the foundational specification for future Software-Defined Photonic deployments.
-End of Document
+---
+**Copyright (c) 2026 Juho Artturi Hemminki. All Rights Reserved.**  
+**License:** Apache License, Version 2.0
